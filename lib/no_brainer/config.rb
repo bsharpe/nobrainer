@@ -10,9 +10,10 @@ module NoBrainer::Config
     :logger                 => { :default => ->{ default_logger } },
     :colorize_logger        => { :default => ->{ true }, :valid_values => [true, false] },
     :warn_on_active_record  => { :default => ->{ true }, :valid_values => [true, false] },
-    :durability             => { :default => ->{ default_durability }, :valid_values => [:hard, :soft] },
+    :durability             => { :default => ->{ nil } }, # legacy
     :table_options          => { :default => ->{ {:shards => 1, :replicas => 1, :write_acks => :majority} },
                                  :valid_keys => [:shards, :replicas, :primary_replica_tag, :write_acks, :durability] },
+    :run_options            => { :default => ->{ {:durability => default_durability} } },
     :max_string_length      => { :default => ->{ 255 } },
     :user_timezone          => { :default => ->{ :local }, :valid_values => [:unchanged, :utc, :local] },
     :db_timezone            => { :default => ->{ :utc }, :valid_values => [:unchanged, :utc, :local] },
@@ -49,6 +50,10 @@ module NoBrainer::Config
 
     def geo_options=(value)
       @geo_options = value.try(:symbolize_keys)
+    end
+
+    def run_options=(value)
+      @run_options = value.try(:symbolize_keys)
     end
 
     def assert_valid_options
@@ -119,9 +124,10 @@ module NoBrainer::Config
       db ||= "#{self.app_name}_#{self.environment}" if self.app_name && self.environment
       host = ENV['RETHINKDB_HOST'] || ENV['RDB_HOST'] || 'localhost'
       port = ENV['RETHINKDB_PORT'] || ENV['RDB_PORT']
-      auth = ENV['RETHINKDB_AUTH'] || ENV['RDB_AUTH']
+      user = ENV['RETHINKDB_USER'] || ENV['RDB_USER']
+      pass = ENV['RETHINKDB_PASSWORD'] || ENV['RDB_PASSWORD'] || ENV['RETHINKDB_AUTH'] || ENV['RDB_AUTH']
       url = ENV['RETHINKDB_URL'] || ENV['RDB_URL']
-      url ||= "rethinkdb://#{":#{auth}@" if auth}#{host}#{":#{port}" if port}/#{db}" if db
+      url ||= "rethinkdb://#{"#{user}:#{pass}@" if (user || pass)}#{host}#{":#{port}" if port}/#{db}" if db
       url
     end
 
