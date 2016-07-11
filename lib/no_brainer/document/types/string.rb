@@ -6,6 +6,7 @@ class String
       case value
       when String then value
       when Symbol then value.to_s
+      when NilClass then nil
       else raise InvalidType
       end.tap do |str|
         max_length = NoBrainer::Config.max_string_length
