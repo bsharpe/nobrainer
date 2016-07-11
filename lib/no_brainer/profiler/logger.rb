@@ -16,6 +16,7 @@ class NoBrainer::Profiler::Logger
 
     msg_db = "[#{env[:options][:db]}] " if env[:options][:db]
     msg_query = env[:query].inspect.gsub(/\n/, '').gsub(/ +/, ' ')
+    msg_query = "#{msg_query}.run(#{env[:options].inspect.gsub(/[{}]/,'')})"
 
     msg_exception = "#{env[:exception].class} #{env[:exception].message.split("\n").first}" if env[:exception]
     msg_exception ||= "perf: filtering without using an index" if not_indexed
