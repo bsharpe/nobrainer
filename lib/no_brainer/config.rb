@@ -23,6 +23,7 @@ module NoBrainer::Config
     :per_thread_connection  => { :default => ->{ false }, :valid_values => [true, false] },
     :machine_id             => { :default => ->{ default_machine_id } },
     :criteria_cache_max_entries => { :default => -> { 10_000 } },
+    :log_slow_queries       => { :default => ->{ nil } }
   }
 
   class << self

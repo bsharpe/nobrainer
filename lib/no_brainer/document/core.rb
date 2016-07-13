@@ -28,7 +28,7 @@ module NoBrainer::Document::Core
         Rails.application.eager_load! if defined?(Rails.application.eager_load!)
         _all
       when :nobrainer
-        [NoBrainer::Document::Index::MetaStore, NoBrainer::Lock]
+        [NoBrainer::Document::Index::MetaStore, NoBrainer::Lock, NoBrainer::Profiler::Query]
       when :system
         NoBrainer::System.constants
           .map { |c| NoBrainer::System.const_get(c) }

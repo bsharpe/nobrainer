@@ -1,5 +1,19 @@
+require_relative 'query'
+
 class NoBrainer::Profiler::Logger
   def on_query(env)
+    # store query info to db
+    if NoBrainer::Config.log_slow_queries.to_f > 0 && env[:duration] > NoBrainer::Config.log_slow_queries.to_f 
+      puts "[Slow Query]".red
+      log_entry = NoBrainer::Profiler::Query.new(
+        criteria: env[:criteria],
+        query: env[:query],
+        options: env[:options],
+        duration: env[:duration]
+      )
+      log_entry.save!
+    end
+    
     not_indexed = env[:criteria] && env[:criteria].where_present? &&
                     !env[:criteria].where_indexed? &&
                     !env[:criteria].model.try(:perf_warnings_disabled)
@@ -44,3 +58,6 @@ class NoBrainer::Profiler::Logger
 
   NoBrainer::Profiler.register(self.new)
 end
+
+
+
