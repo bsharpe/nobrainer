@@ -38,10 +38,13 @@ class NoBrainer::Profiler::Logger
       msg_last = "\e[0m"
     end
     
-    call_stack = caller.reject{|e| e.index('gems/') || e.index('lib/middleware/') || e.index('nobrainer') || e.index('baremetrics.rb') || e.index('/irb/') || e.index('/irb.rb') || e.index('rails/commands') || e.index('bin/rails') || e.index('irb_binding') || e.index('rdb.rb') || e.index('connection_pool.rb') || e.index('bulk_support.rb')}
-    ignore_path = Rails.root.to_s.split('/')[0..-2].join('/')
-    call_stack.each do |line|
-      NoBrainer.logger.add level, "#{query_color}#{line.gsub(ignore_path,'')}\e[0;34m"
+    # print call stack to see where this query was called
+    if level == 0
+      call_stack = caller.reject{|e| e.index('Pow') || e.index('<main>') || e.index('gems/') || e.index('lib/middleware/') || e.index('nobrainer') || e.index('baremetrics.rb') || e.index('/irb/') || e.index('/irb.rb') || e.index('rails/commands') || e.index('bin/rails') || e.index('irb_binding') || e.index('rdb.rb') || e.index('connection_pool.rb') || e.index('bulk_support.rb')}
+      ignore_path = Rails.root.to_s.split('/')[0..-2].join('/')
+      call_stack.each do |line|
+        NoBrainer.logger.add level, "#{query_color}#{line.gsub(ignore_path,'')}\e[0;34m"
+      end
     end
 
     msg = [msg_duration, msg_db, msg_query, msg_exception, msg_last].join
